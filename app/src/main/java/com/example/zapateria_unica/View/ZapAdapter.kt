@@ -7,64 +7,41 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.app_ejercicios.R
 import com.example.zapateria_unica.model.local.ZapEntity
 import com.example.zapateria_unica.model.local.databinding.ZapListBinding
 
 
-class ZapAdapter : RecyclerView.Adapter<ZapAdapter.CoursesVH>() {
+class ZapAdapter : RecyclerView.Adapter<ZapAdapter.zapHolder>() {
 
     private var listZapatilla = listOf<ZapEntity>()
     private val SelectedZap = MutableLiveData<ZapEntity>()
 
 
-
-    fun update(list:List<ZapEntity>){
-        listZapatilla= list
-        notifyDataSetChanged()
-    }
-
-
-    // FUNCION PARA SELECCIONAR
-
-    fun selectedCourse():
-            LiveData<ZapEntity> = SelectedZap
-
-
-    inner class  CoursesVH(private val mBinding:ZapatillasListBinding  ):
-        RecyclerView.ViewHolder(mBinding.root), View.OnClickListener{
-
-        fun bind(course: CoursesEntity){
-            Glide.with(mBinding.ivLogo).load(course.image).centerCrop().into(mBinding.ivLogo)
-
-            mBinding.tvname.text = course.title
-            mBinding.tvdescription.text = course.previewDescription
-            mBinding.tvduration.text = "duración: " + course.weeks.toString() + " Semanas"
-            mBinding.tvstart.text = "Inicio: " + course.star
-            itemView.setOnClickListener(this)
-
-        }
-        override  fun onClick(v: View){
-
-            SelectedCourse.value= listCourses[adapterPosition]
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): zapHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            return zapHolder(layoutInflater.inflate(R.layout.item_rv, parent, false))
         }
 
+        override fun getItemCount(): Int = listZapatilla.size
+
+        override fun onBindViewHolder(holder: zapHolder, position: Int) {
+            val item =(zapatillas[position])
+            holder.render(item,onClickListener)
+        }
+
+        class zapHolder(val view: View) : RecyclerView.ViewHolder(view) {
+
+            val binding = ItemZapatillasBinding.bind(view)
+
+            fun render(zapatillas: ModelosZapatillas,onClickListener: (ModelosZapatillas) -> Unit)  {
+                binding.nombrezapatilla.text = zapatillas.nombreZapatilla
+                binding.tvPreciozapatilla.text = zapatillas.precioZapatilla
+                Glide.with(binding.imagenZapatilla).load(zapatillas.imagenZapatilla).into(binding.imagenZapatilla)
+
+                itemView.setOnClickListener{onClickListener(zapatillas)}
+
+            }
+        }
     }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CoursesVH {
-        return CoursesVH(ZapatillasListBinding.inflate(LayoutInflater.from(parent.context)))
-    }
-
-
-    override fun onBindViewHolder(holder: CoursesVH, position: Int) {
-        val course = listCourses[position]
-        holder.bind(course)
-    }
-
-
-    override fun getItemCount()=
-        listCourses.size
-}
-
-
-
 
